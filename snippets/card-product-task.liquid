@@ -1,0 +1,31 @@
+{% comment %}
+  Renders a product card
+
+  Accepts:
+  - card_product: {Object} Product Liquid object (optional)
+  - section_id: {String} The ID of the section that contains this card.
+
+  Usage:
+  {% render 'card-product'%}
+{% endcomment %}
+
+<article class="flex flex-col pt-5 px-7 pb-9">
+        <a href="#" class="relative">
+            <img src="{{ card_product | image_url }}" height="340px" width="315px" alt="{{ card_product.title }}" class="p-5 border border-gray"/>
+            
+            {% if card_product.compare_at_price > card_product.price %}
+                <p class="text-base font-semibold text-red absolute top-5 left-5 border border-red py-1.5 px-3 rounded-3xl">On Sale!</p>
+            {% endif %} 
+        </a>
+        <p>{{ card_product.vendor }}</p>
+        <p class="text-blue">{{ card_product.title }}</p>
+        <div class="flex gap-2">
+            {% if card_product.compare_at_price != blank and card_product.compare_at_price > card_product.price%}
+                <p class="line-through">{{ card_product.compare_at_price | money}}</p>
+                <p class="text-red">{{ card_product.price | money}}</p>                    
+            {% else %}
+                <p class="">{{ card_product.price | money}}</p>
+            {% endif %}
+        </div>
+</article>
+

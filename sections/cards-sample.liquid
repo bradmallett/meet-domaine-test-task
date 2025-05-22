@@ -1,0 +1,27 @@
+{% liquid
+  assign product_list = section.settings.product_list 
+%}
+
+<section> 
+    {% for product in product_list %}
+        {% render 'card-product-task', card_product: product, section_id: section.id %}
+    {% endfor %}
+</section>
+
+{% schema %}
+{
+  "name": "Cards Sample",
+  "settings": [
+    {
+      "type": "product_list",
+      "id": "product_list",
+      "label": "Products"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Cards Sample"
+    }
+  ]
+}
+{% endschema %}
