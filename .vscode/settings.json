@@ -11,5 +11,21 @@
     "editor.defaultFormatter": "Shopify.theme-check-vscode",
     "editor.formatOnSave": true
   },
-  "themeCheck.checkOnSave": true
+  "themeCheck.checkOnSave": true,
+  "tailwindCSS.classAttributes": [
+    "class",
+    "className",
+    ".*Styles",
+    ".*Classes"
+  ],
+  "tailwindCSS.classFunctions": ["tw", "clsx", "tw\\.[a-z-]+"],
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html",
+    "liquid": "html"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["class:\\s*['\"]([^'\"]*)['\"]"],
+    ["class\\s*[:=]\\s*['\"]([^'\"]*)['\"]"],
+    ["['\"]class['\"]\\s*[:=]\\s*['\"]([^'\"]*)['\"]"]
+  ]
 }
