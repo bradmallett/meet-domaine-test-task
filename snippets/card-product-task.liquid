@@ -9,16 +9,35 @@
   {% render 'card-product'%}
 {% endcomment %}
 
-<article class="flex flex-col pt-5 px-7 pb-9">
+<article class="flex flex-col pt-5 px-7 pb-9 w-[370px]">
         <a href="#" class="relative">
-            <img src="{{ card_product | image_url }}" height="340px" width="315px" alt="{{ card_product.title }}" class="p-5 border border-gray"/>
+            <img id="card-product-image" src="{{ card_product | image_url }}" width="315px" height="340px" alt="{{ card_product.title }}" class="p-5 border border-gray"/>
             
             {% if card_product.compare_at_price > card_product.price %}
                 <p class="text-base font-semibold text-red absolute top-5 left-5 border border-red py-1.5 px-3 rounded-3xl">On Sale!</p>
             {% endif %} 
         </a>
+
+        {% if card_product.variants.size > 0  %}
+            <ul class="flex gap-2 mt-4">
+                {% for variant in card_product.variants %}
+                        <button 
+                            type="button"
+                            data-variant-id="{{ variant.id }}"
+                            class="w-6 h-6 rounded-full"
+                            style="background-color: {{ variant.option1 | downcase }};"
+                        > 
+                            <span class="sr-only">{{ variant.title }}</span>
+                        </button>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+
         <p>{{ card_product.vendor }}</p>
-        <p class="text-blue">{{ card_product.title }}</p>
+        <a href="#">
+            <p class="text-blue">{{ card_product.title }}</p>
+        </a>
         <div class="flex gap-2">
             {% if card_product.compare_at_price != blank and card_product.compare_at_price > card_product.price%}
                 <p class="line-through">{{ card_product.compare_at_price | money}}</p>
@@ -29,3 +48,35 @@
         </div>
 </article>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const variants = {{ card_product.variants | json }};
+
+        if (variants.length === 0) {
+            return;
+        }
+        
+        const swatchButtons = document.querySelectorAll('[data-variant-id]');
+        const imgElement = document.getElementById('card-product-image');
+        let variantMap = {};
+
+        variants.forEach(variant => {
+            if (variant.featured_image) {
+                variantMap[variant.id] = variant.featured_image.src;
+            }
+        });
+
+        swatchButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const variantId = button.dataset.variantId;
+                const newImageSrc = variantMap[variantId];
+
+                if (newImageSrc) {
+                    imgElement.src = newImageSrc;
+                }
+            });
+        });
+    });
+
+
+</script>
