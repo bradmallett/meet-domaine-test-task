@@ -10,16 +10,31 @@
 {% endcomment %}
 
 <article class="flex flex-col pt-5 px-7 pb-9 w-[370px]">
-        <a href="#" class="relative">
-            <img id="card-product-image" src="{{ card_product | image_url }}" width="315px" height="340px" alt="{{ card_product.title }}" class="p-5 border border-gray"/>
+        <a href="#" class="relative block w-[315px] h-[340px] border border-gray overflow-hidden group">
+            <img 
+                id="card-product-image" 
+                src="{{ card_product | image_url }}" 
+                width="315px" 
+                height="340px" 
+                alt="{{ card_product.title }}" 
+                class="z-20 w-full h-full object-cover"
+            />
+            <img
+                id="card-product-secondar-image" 
+                src="{{ card_product | image_url }}" 
+                width="315px" 
+                height="340px" 
+                alt="{{ card_product.title }}" 
+                class="absolute top-0 left-0 z-50 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            />
             
             {% if card_product.compare_at_price > card_product.price %}
-                <p class="text-base font-semibold text-red absolute top-5 left-5 border border-red py-1.5 px-3 rounded-3xl">On Sale!</p>
+                <p class="text-base font-semibold text-red absolute top-5 left-5 border border-red py-1.5 px-3 rounded-3xl z-50">On Sale!</p>
             {% endif %} 
         </a>
 
         {% if card_product.variants.size > 0  %}
-            <ul class="flex gap-2 mt-4">
+            <ul class="flex gap-2 my-4">
                 {% for variant in card_product.variants %}
                         <button 
                             type="button"
@@ -47,18 +62,20 @@
             {% endif %}
         </div>
 </article>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const featuredImgElement = document.getElementById('card-product-image');
+        const secondaryImgElement = document.getElementById('card-product-secondar-image');
         const variants = {{ card_product.variants | json }};
+        const swatchButtons = document.querySelectorAll('[data-variant-id]');
+        let variantMap = {};
+        let featuredImgIndex = 0;
+
+        updateSecondaryImage(featuredImgIndex);
 
         if (variants.length === 0) {
             return;
         }
-        
-        const swatchButtons = document.querySelectorAll('[data-variant-id]');
-        const imgElement = document.getElementById('card-product-image');
-        let variantMap = {};
 
         variants.forEach(variant => {
             if (variant.featured_image) {
@@ -72,10 +89,20 @@
                 const newImageSrc = variantMap[variantId];
 
                 if (newImageSrc) {
-                    imgElement.src = newImageSrc;
+                    featuredImgElement.src = newImageSrc;
+                    featuredImgIndex = {{ card_product.images | json }}.indexOf(newImageSrc);
+                    updateSecondaryImage(featuredImgIndex);
                 }
             });
         });
+
+        function updateSecondaryImage(index) {
+            const secondaryImgUrl = {{ card_product.images | json }}[featuredImgIndex + 1];
+
+            if (secondaryImgUrl) {
+                secondaryImgElement.src = secondaryImgUrl;
+            }
+        }
     });
 
 
