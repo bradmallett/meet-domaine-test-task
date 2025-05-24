@@ -3,7 +3,7 @@
 %}
 
 <section>
-    <ul>
+    <ul class="flex flex-wrap justify-center align-middle">
         {% for product in product_list %}
             {% render 'card-product-task', card_product: product, section_id: section.id %}
         {% endfor %}

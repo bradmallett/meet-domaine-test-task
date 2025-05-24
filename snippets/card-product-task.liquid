@@ -7,56 +7,60 @@
 
   Usage:
   {% render 'card-product'%}
+
+  TODOS:
+  - Make link to product page stright to variant selected
+  - Add loading state for image change
+  - lighthouse ada performance audit
 {% endcomment %}
 
-<article class="flex flex-col pt-5 px-7 pb-9 w-[370px]">
-        <a href="#" class="relative block w-[315px] h-[340px] border border-gray overflow-hidden group">
+<article class="flex flex-col pt-5 px-7 pb-9 w-[370px]" id="{{ card_product.id }}">
+        <a href="#" class="relative block w-[315px] h-[340px] border border-gray-task overflow-hidden group">
             <img 
-                id="card-product-image" 
                 src="{{ card_product | image_url }}" 
                 width="315px" 
                 height="340px" 
                 alt="{{ card_product.title }}" 
-                class="z-20 w-full h-full object-cover"
+                class="z-20 w-full h-full object-cover card-product-image"
             />
             <img
-                id="card-product-secondar-image" 
                 src="{{ card_product | image_url }}" 
                 width="315px" 
                 height="340px" 
                 alt="{{ card_product.title }}" 
-                class="absolute top-0 left-0 z-50 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                class="absolute top-0 left-0 z-50 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-200 card-product-secondary-image"
             />
             
             {% if card_product.compare_at_price > card_product.price %}
-                <p class="text-base font-semibold text-red absolute top-5 left-5 border border-red py-1.5 px-3 rounded-3xl z-50">On Sale!</p>
+                <p class="text-base font-semibold text-red-task absolute top-5 left-5 border border-red-task py-1.5 px-3 rounded-3xl z-50">On Sale!</p>
             {% endif %} 
         </a>
 
         {% if card_product.variants.size > 0  %}
-            <ul class="flex gap-2 my-4">
+            <fieldset class="flex gap-2 my-4">
                 {% for variant in card_product.variants %}
-                        <button 
-                            type="button"
-                            data-variant-id="{{ variant.id }}"
-                            class="w-6 h-6 rounded-full"
-                            style="background-color: {{ variant.option1 | downcase }};"
-                        > 
-                            <span class="sr-only">{{ variant.title }}</span>
-                        </button>
+                    <input
+                        type="radio"
+                        value="{{ variant.id }}"
+                        id="{{ variant.id }}"
+                        name="{{ card_product.id }}"
+                        class="tshirt-selector"
+                    />
+                    <label for="{{ variant.id }}" class="w-6 h-6 rounded-full relative right-[20px] mr-[-20px] cursor-pointer" style="background-color: {{ variant.option1 | downcase }};"></label>
                 {% endfor %}
-            </ul>
+            </fieldset>
         {% endif %}
+
 
 
         <p>{{ card_product.vendor }}</p>
         <a href="#">
-            <p class="text-blue">{{ card_product.title }}</p>
+            <p class="text-blue-task">{{ card_product.title }}</p>
         </a>
         <div class="flex gap-2">
             {% if card_product.compare_at_price != blank and card_product.compare_at_price > card_product.price%}
                 <p class="line-through">{{ card_product.compare_at_price | money}}</p>
-                <p class="text-red">{{ card_product.price | money}}</p>                    
+                <p class="text-red-task">{{ card_product.price | money}}</p>                    
             {% else %}
                 <p class="">{{ card_product.price | money}}</p>
             {% endif %}
@@ -64,19 +68,22 @@
 </article>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const featuredImgElement = document.getElementById('card-product-image');
-        const secondaryImgElement = document.getElementById('card-product-secondar-image');
-        const variants = {{ card_product.variants | json }};
-        const swatchButtons = document.querySelectorAll('[data-variant-id]');
+        console.log({{ card_product | json }});
+        const cardArticle = document.getElementById('{{ card_product.id }}');
+        const featuredImgElement = cardArticle.querySelector('.card-product-image');
+        const secondaryImgElement = cardArticle.querySelector('.card-product-secondary-image');
+        const swatchButtons = cardArticle.querySelectorAll('input.tshirt-selector');
         let variantMap = {};
         let featuredImgIndex = 0;
 
         updateSecondaryImage(featuredImgIndex);
 
+        const variants = {{ card_product.variants | json }};
         if (variants.length === 0) {
             return;
         }
 
+        // create map of variant IDs to image URLs
         variants.forEach(variant => {
             if (variant.featured_image) {
                 variantMap[variant.id] = variant.featured_image.src;
@@ -84,10 +91,11 @@
         });
 
         swatchButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const variantId = button.dataset.variantId;
+            button.addEventListener('change', function(event) {
+                const variantId = event.target.value;
                 const newImageSrc = variantMap[variantId];
 
+                // TODO: Add loading state if possible
                 if (newImageSrc) {
                     featuredImgElement.src = newImageSrc;
                     featuredImgIndex = {{ card_product.images | json }}.indexOf(newImageSrc);
@@ -104,6 +112,5 @@
             }
         }
     });
-
 
 </script>
