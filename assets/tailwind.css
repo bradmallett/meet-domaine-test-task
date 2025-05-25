@@ -12,5 +12,17 @@
   --color-green: #006600;
   --color-yellow: #FCE78D;
   --color-pink: #FFCCFF;
+  --font-franklin: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  --font-roboto: 'Roboto', sans-serif;
 }
 
+@layer utilities {
+  .font-franklin {
+    font-family: var(--font-franklin);
+  }
+
+  .font-roboto {
+    font-family: var(--font-roboto);
+  }
+  
+}
