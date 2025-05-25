@@ -9,108 +9,125 @@
   {% render 'card-product'%}
 
   TODOS:
-  - Make link to product page stright to variant selected
   - Add loading state for image change
   - lighthouse ada performance audit
+  - outline for keyboard navigation
+  - section rendering api
 {% endcomment %}
 
-<article class="flex flex-col pt-5 px-7 pb-9 w-[370px]" id="{{ card_product.id }}">
-        <a href="#" class="relative block w-[315px] h-[340px] border border-gray-task overflow-hidden group">
-            <img 
-                src="{{ card_product | image_url }}" 
-                width="315px" 
-                height="340px" 
-                alt="{{ card_product.title }}" 
-                class="z-20 w-full h-full object-cover card-product-image"
-            />
-            <img
-                src="{{ card_product | image_url }}" 
-                width="315px" 
-                height="340px" 
-                alt="{{ card_product.title }}" 
-                class="absolute top-0 left-0 z-50 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-200 card-product-secondary-image"
-            />
-            
-            {% if card_product.compare_at_price > card_product.price %}
-                <p class="text-base font-semibold text-red-task absolute top-5 left-5 border border-red-task py-1.5 px-3 rounded-3xl z-50">On Sale!</p>
-            {% endif %} 
-        </a>
+<article class="flex flex-col pt-5 px-7 pb-9 w-[370px] gap-[15px] card-product-task" id="{{ card_product.id }}">
+  <a
+    href="{{ card_product.url }}?variant={{ card_product.selected_or_first_available_variant.id }}"
+    class="p-5 relative block border border-gray-task overflow-hidden group rounded-[10px] w-[315px] h-[340px]"
+  >
+    <img
+      src="{{ card_product | image_url }}"
+      width="275px"
+      height="301px"
+      alt="{{ card_product.title }}"
+      class="z-20 w-full h-full object-cover card-product-image group-hover:opacity-0 transition-opacity duration-400"
+    >
+    <img
+      src="{{ card_product | image_url }}"
+      width="275px"
+      height="301px"
+      alt="{{ card_product.title }}"
+      class="absolute top-0 left-0 z-50 w-full h-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-400 card-product-secondary-image"
+    >
 
-        {% if card_product.variants.size > 0  %}
-            <fieldset class="flex gap-2 my-4">
-                {% for variant in card_product.variants %}
-                    <input
-                        type="radio"
-                        value="{{ variant.id }}"
-                        id="{{ variant.id }}"
-                        name="{{ card_product.id }}"
-                        class="tshirt-selector"
-                    />
-                    <label for="{{ variant.id }}" class="w-6 h-6 rounded-full relative right-[20px] mr-[-20px] cursor-pointer" style="background-color: {{ variant.option1 | downcase }};"></label>
-                {% endfor %}
-            </fieldset>
-        {% endif %}
+    {% if card_product.compare_at_price > card_product.price %}
+      <p class="text-xl text-red-task absolute top-5 left-5 border border-red-task py-1.5 px-3 rounded-3xl z-50 on-sale-badge">
+        On Sale!
+      </p>
+    {% endif %}
+  </a>
 
+  {% if card_product.variants.size > 0 %}
+    <fieldset class="flex gap-2">
+        <legend class="sr-only">Choose a color</legend>
+        {% for variant in card_product.variants %}
+            <input
+            type="radio"
+            value="{{ variant.id }}"
+            id="{{ variant.id }}"
+            name="{{ card_product.id }}"
+            class="tshirt-selector"
+            {% if forloop.first %}checked{% endif %}
+            >
+            <label
+            for="{{ variant.id }}"
+            class="w-6 h-6 rounded-full relative right-[20px] mr-[-20px] cursor-pointer"
+            style="background-color: {{ variant.option1 | downcase }};"
+            ></label>
+      {% endfor %}
+    </fieldset>
+  {% endif %}
 
-
-        <p>{{ card_product.vendor }}</p>
-        <a href="#">
-            <p class="text-blue-task">{{ card_product.title }}</p>
-        </a>
-        <div class="flex gap-2">
-            {% if card_product.compare_at_price != blank and card_product.compare_at_price > card_product.price%}
-                <p class="line-through">{{ card_product.compare_at_price | money}}</p>
-                <p class="text-red-task">{{ card_product.price | money}}</p>                    
-            {% else %}
-                <p class="">{{ card_product.price | money}}</p>
-            {% endif %}
-        </div>
+  <div>
+    <p>{{ card_product.vendor }}</p>
+    <a href="{{ card_product.url }}?variant={{ card_product.selected_or_first_available_variant.id }}">
+      <p class="text-blue-task py-1.5 hover:text-blue-task-light">{{ card_product.title }}</p>
+    </a>
+    <div class="flex gap-2">
+      {% if card_product.compare_at_price != blank and card_product.compare_at_price > card_product.price %}
+        <p class=" relative after:bg-black after:h-px after:w-full after:absolute after:bottom-5 after:inset-x-0">
+          {{ card_product.compare_at_price | money }}
+        </p>
+        <p class="text-red-task">{{ card_product.price | money }}</p>
+      {% else %}
+        <p class="">{{ card_product.price | money }}</p>
+      {% endif %}
+    </div>
+  </div>
 </article>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log({{ card_product | json }});
-        const cardArticle = document.getElementById('{{ card_product.id }}');
-        const featuredImgElement = cardArticle.querySelector('.card-product-image');
-        const secondaryImgElement = cardArticle.querySelector('.card-product-secondary-image');
-        const swatchButtons = cardArticle.querySelectorAll('input.tshirt-selector');
-        let variantMap = {};
-        let featuredImgIndex = 0;
+      document.addEventListener('DOMContentLoaded', function() {
+      const cardArticle = document.getElementById('{{ card_product.id }}');
+      const featuredImgElement = cardArticle.querySelector('.card-product-image');
+      const secondaryImgElement = cardArticle.querySelector('.card-product-secondary-image');
+      const swatchButtons = cardArticle.querySelectorAll('input.tshirt-selector');
+      const productLink = cardArticle.querySelector('a');
+      const variants = {{ card_product.variants | json }};
+      const allImages = {{ card_product.images | json }};
+      let variantMap = {};
+      let imgIndex = 0;
 
-        updateSecondaryImage(featuredImgIndex);
+      updateSecondaryImage(imgIndex);
 
-        const variants = {{ card_product.variants | json }};
-        if (variants.length === 0) {
-            return;
+      variants.forEach(variant => {
+          if (variant.featured_image) {
+              variantMap[variant.id] = variant.featured_image.src;
+          }
+      });
+
+      swatchButtons.forEach(button => {
+          button.addEventListener('change', function(event) {
+              const variantId = event.target.value;
+              const newImageSrc = variantMap[variantId];
+
+              // Update the product link to include the selected variant
+              const url = new URL(productLink.href);
+              url.searchParams.set('variant', variantId);
+              productLink.href = url.toString();
+
+              // Update product image
+              if (newImageSrc) {
+                  featuredImgElement.src = newImageSrc;
+                  imgIndex = allImages.indexOf(newImageSrc);
+                  updateSecondaryImage(imgIndex);
+              }
+          });
+      });
+
+      function updateSecondaryImage(index) {
+          const secondaryImgUrl = allImages[index + 1];
+          if (secondaryImgUrl) {
+              secondaryImgElement.src = secondaryImgUrl;
+          }
+          else {
+            secondaryImgElement.src = allImages[index]
         }
-
-        // create map of variant IDs to image URLs
-        variants.forEach(variant => {
-            if (variant.featured_image) {
-                variantMap[variant.id] = variant.featured_image.src;
-            }
-        });
-
-        swatchButtons.forEach(button => {
-            button.addEventListener('change', function(event) {
-                const variantId = event.target.value;
-                const newImageSrc = variantMap[variantId];
-
-                // TODO: Add loading state if possible
-                if (newImageSrc) {
-                    featuredImgElement.src = newImageSrc;
-                    featuredImgIndex = {{ card_product.images | json }}.indexOf(newImageSrc);
-                    updateSecondaryImage(featuredImgIndex);
-                }
-            });
-        });
-
-        function updateSecondaryImage(index) {
-            const secondaryImgUrl = {{ card_product.images | json }}[featuredImgIndex + 1];
-
-            if (secondaryImgUrl) {
-                secondaryImgElement.src = secondaryImgUrl;
-            }
-        }
-    });
-
+      }
+  });
 </script>
