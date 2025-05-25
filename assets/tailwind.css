@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+
+@theme {
+  --color-gray-task: #E8E8E8;
+  --color-red-task: #FF0000;
+  --color-blue-task: #0A4874;
+  --color-blue-task-light: #2F6691;
+  --color-blue: #00639C;
+  --color-navy: #19264B;
+  --color-orange: #FF6633;
+  --color-green: #006600;
+  --color-yellow: #FCE78D;
+  --color-pink: #FFCCFF;
+}
+

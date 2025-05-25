@@ -3595,3 +3595,20 @@ details-disclosure > details {
     transform: translateX(100%) scaleX(0);
   }
 }
+
+
+.tshirt-selector:checked + label {
+  outline: 1px solid #0A4874;
+  outline-offset: 1px;
+}
+
+.card-product-task {
+  font-family: "Roboto", sans-serif;
+  line-height: 1.5;
+}
+
+.on-sale-badge {
+  font-family: "ITC Franklin Gothic", sans-serif;
+  font-weight: 600;
+}
+
