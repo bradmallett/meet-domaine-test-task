@@ -11,3 +11,5 @@ Thumbs.db
 .env
 node_modules/
 *.css.map
+# Tailwind-generated file
+assets/theme.css
