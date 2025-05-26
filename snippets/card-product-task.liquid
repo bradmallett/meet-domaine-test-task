@@ -1,4 +1,4 @@
-{% comment %}
+{%- comment -%}
   Renders a product card
 
   Accepts:
@@ -7,15 +7,9 @@
 
   Usage:
   {% render 'card-product'%}
+{%- endcomment -%}
 
-  TODOS:
-  - Add loading state for image change
-  - lighthouse ada performance audit
-  - outline for keyboard navigation
-  - section rendering api
-{% endcomment %}
-
-<article class="flex flex-col pt-5 px-7 pb-9 w-[370px] gap-[15px] card-product-task" id="{{ card_product.id }}">
+<article class="flex flex-col pt-5 px-7 pb-9 w-[370px] gap-[15px] font-roboto leading-8" id="{{ card_product.id }}">
   <a
     href="{{ card_product.url }}?variant={{ card_product.selected_or_first_available_variant.id }}"
     class="p-5 relative block border border-gray-task overflow-hidden group rounded-[10px] w-[315px] h-[340px]"
@@ -34,53 +28,52 @@
       alt="{{ card_product.title }}"
       class="absolute top-0 left-0 z-50 w-full h-full object-contain opacity-0 group-hover:opacity-100 transition-opacity duration-400 card-product-secondary-image"
     >
-
-    {% if card_product.compare_at_price > card_product.price %}
-      <p class="text-xl text-red-task absolute top-5 left-5 border border-red-task py-1.5 px-3 rounded-3xl z-50 on-sale-badge">
-        On Sale!
+    {%- if card_product.compare_at_price > card_product.price -%}
+      <p class="text-2xl text-red-task absolute top-5 left-5 border border-red-task py-1.5 px-3 rounded-3xl z-50 font-franklin font-bold">
+        {{ 'products.product.on_sale' | t }}
       </p>
-    {% endif %}
+    {%- endif -%}
   </a>
-
-  {% if card_product.variants.size > 0 %}
+  {%- if card_product.variants.size > 0 -%}
     <fieldset class="flex gap-2">
-        <legend class="sr-only">Choose a color</legend>
-        {% for variant in card_product.variants %}
-            <input
-            type="radio"
-            value="{{ variant.id }}"
-            id="{{ variant.id }}"
-            name="{{ card_product.id }}"
-            class="tshirt-selector"
-            {% if forloop.first %}checked{% endif %}
-            >
-            <label
-            for="{{ variant.id }}"
-            class="w-6 h-6 rounded-full relative right-[20px] mr-[-20px] cursor-pointer"
-            style="background-color: {{ variant.option1 | downcase }};"
-            ></label>
-      {% endfor %}
+      <legend class="sr-only">Choose a color</legend>
+      {%- for variant in card_product.variants -%}
+        <input
+          type="radio"
+          value="{{ variant.id }}"
+          id="{{ variant.id }}"
+          name="{{ card_product.id }}"
+          class="tshirt-selector"
+          aria-label="Color {{ variant.option1 }}"
+          {%- if forloop.first -%}
+            checked
+          {%- endif -%}
+        >
+        <label
+          for="{{ variant.id }}"
+          class="w-6 h-6 rounded-full relative right-[20px] mr-[-20px] cursor-pointer"
+          style="background-color: {{ variant.option1 | downcase }};"
+        ></label>
+      {%- endfor -%}
     </fieldset>
-  {% endif %}
-
+  {%- endif -%}
   <div>
     <p>{{ card_product.vendor }}</p>
     <a href="{{ card_product.url }}?variant={{ card_product.selected_or_first_available_variant.id }}">
       <p class="text-blue-task py-1.5 hover:text-blue-task-light">{{ card_product.title }}</p>
     </a>
     <div class="flex gap-2">
-      {% if card_product.compare_at_price != blank and card_product.compare_at_price > card_product.price %}
-        <p class=" relative after:bg-black after:h-px after:w-full after:absolute after:bottom-5 after:inset-x-0">
+      {%- if card_product.compare_at_price != blank and card_product.compare_at_price > card_product.price -%}
+        <p class="relative after:bg-black after:h-px after:w-full after:absolute after:bottom-5 after:inset-x-0">
           {{ card_product.compare_at_price | money }}
         </p>
         <p class="text-red-task">{{ card_product.price | money }}</p>
-      {% else %}
+      {%- else -%}
         <p class="">{{ card_product.price | money }}</p>
-      {% endif %}
+      {%- endif -%}
     </div>
   </div>
 </article>
-
 <script>
       document.addEventListener('DOMContentLoaded', function() {
       const cardArticle = document.getElementById('{{ card_product.id }}');
@@ -126,7 +119,7 @@
               secondaryImgElement.src = secondaryImgUrl;
           }
           else {
-            secondaryImgElement.src = allImages[index]
+            secondaryImgElement.src = allImages[index];
         }
       }
   });
